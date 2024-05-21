@@ -23,9 +23,9 @@ chrome.runtime.onInstalled.addListener(storeUserAgent);
 const setupAlarm = () => {
   chrome.storage.local.get({ checkInterval: 15 }, (result) => {
     const interval = result.checkInterval;
-    // chrome.alarms.create("checkSubscriptions", { periodInMinutes: interval });
+    chrome.alarms.create("checkSubscriptions", { periodInMinutes: interval });
     // testing
-    chrome.alarms.create("immediateAlarm", { when: Date.now() + 1000 });
+    // chrome.alarms.create("immediateAlarm", { when: Date.now() + 1000 });
   });
 };
 
@@ -56,6 +56,7 @@ chrome.alarms.onAlarm.addListener((alarm) => {
         const userAgent = result.userAgent;
         for (let i = 0; i < subscriptions.length; i++) {
           await checkCraigslist(subscriptions, i, userAgent);
+          console.log("checked");
         }
       });
     });
@@ -106,7 +107,7 @@ const checkCraigslist = async (subscriptions, index, userAgent) => {
 const notifyUser = (newPostsCount, subscriptionTerm, newPosts) => {
   const options = {
     type: "basic",
-    iconUrl: "icons/icon.png",
+    iconUrl: "../icons/icon.png",
     title: "New Craigslist Posts",
     message: `You have ${newPostsCount} new posts for "${subscriptionTerm}". Click to view more.`,
     buttons: [{ title: "View" }],
@@ -136,7 +137,7 @@ chrome.notifications.onClicked.addListener((notificationId) => {
 const showDetailedNotification = (post) => {
   const options = {
     type: "basic",
-    iconUrl: "icons/icon.png",
+    iconUrl: "../icons/icon.png",
     title: post.title,
     message: `Price: ${post.price}\nLocation: ${post.location}`,
     buttons: [{ title: "Go to site" }],
