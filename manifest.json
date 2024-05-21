@@ -1,22 +1,27 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "Craigslist Notifier",
   "version": "1.0",
+  "description": "A Chrome extension to notify about new Craigslist posts",
   "permissions": [
-    "notifications",
     "storage",
-    "background",
     "alarms",
-    "https://*.craigslist.org/"
+    "notifications",
+    "scripting",
+    "tabs",
+    "activeTab",
+    "webRequest"
   ],
+  "host_permissions": ["https://*.craigslist.org/"],
   "background": {
-    "scripts": ["background.js"],
-    "persistent": false
+    "service_worker": "dist/background.bundle.js"
   },
-  "browser_action": {
-    "default_popup": "popup.html"
+  "action": {
+    "default_popup": "html/popup.html"
   },
   "icons": {
-    "48": "icon.png"
+    "16": "icons/icon.png",
+    "48": "icons/icon.png",
+    "128": "icons/icon.png"
   }
 }

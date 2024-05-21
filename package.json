@@ -1,5 +1,15 @@
 {
+  "name": "craigslist-notifier",
+  "version": "1.0.0",
+  "description": "A Chrome extension to notify about new Craigslist posts",
+  "main": "src/background.js",
+  "scripts": {
+    "build": "browserify src/background.js -o dist/background.bundle.js && browserify src/popup.js -o dist/popup.bundle.js"
+  },
+  "author": "",
+  "license": "MIT",
   "dependencies": {
+    "browserify": "^17.0.0",
     "cheerio": "^1.0.0-rc.12"
   }
 }

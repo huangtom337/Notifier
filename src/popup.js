@@ -1,17 +1,22 @@
+const { fetchPostIds } = require("./utils");
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("subscribeForm");
   const searchTermInput = document.getElementById("searchTerm");
   const subscriptionsList = document.getElementById("subscriptions");
   const intervalForm = document.getElementById("intervalForm");
   const intervalInput = document.getElementById("intervalInput");
-
-  form.addEventListener("submit", (event) => {
+  form.addEventListener("submit", async (event) => {
     event.preventDefault();
     const searchTerm = searchTermInput.value;
     if (searchTerm) {
+      const htmlUrl = `https://vancouver.craigslist.org/search/cta?query=${encodeURIComponent(
+        searchTerm
+      )}`;
+      const posts = await fetchPostIds(htmlUrl, ""); // Pass userAgent to fetch function
+      const lastPostId = posts.length > 0 ? posts[0].postId : "no-posts-found";
       chrome.storage.local.get({ subscriptions: [] }, (result) => {
         const subscriptions = result.subscriptions;
-        subscriptions.push(searchTerm);
+        subscriptions.push({ term: searchTerm, lastPostId });
         chrome.storage.local.set({ subscriptions }, () => {
           searchTermInput.value = "";
           displaySubscriptions();
@@ -30,18 +35,30 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
   });
-
-  function displaySubscriptions() {
+  const displaySubscriptions = () => {
     subscriptionsList.innerHTML = "";
     chrome.storage.local.get({ subscriptions: [] }, (result) => {
       const subscriptions = result.subscriptions;
-      subscriptions.forEach((term) => {
+      subscriptions.forEach((subscription, index) => {
         const li = document.createElement("li");
-        li.textContent = term;
+        li.textContent = subscription.term;
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "Delete";
+        deleteButton.onclick = () => deleteSubscription(index);
+        li.appendChild(deleteButton);
         subscriptionsList.appendChild(li);
       });
     });
-  }
+  };
 
+  const deleteSubscription = (index) => {
+    chrome.storage.local.get({ subscriptions: [] }, (result) => {
+      const subscriptions = result.subscriptions;
+      subscriptions.splice(index, 1);
+      chrome.storage.local.set({ subscriptions }, () => {
+        displaySubscriptions();
+      });
+    });
+  };
   displaySubscriptions();
 });
