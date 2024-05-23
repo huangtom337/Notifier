@@ -115,46 +115,29 @@ const notifyUser = (newPostsCount, subscriptionTerm, newPosts) => {
   };
 
   const notificationId = `notification_${Date.now()}`;
-  notifications[notificationId] = newPosts;
 
-  chrome.notifications.create(notificationId, options);
-};
-
-chrome.notifications.onClicked.addListener((notificationId) => {
-  const newPosts = notifications[notificationId];
-  if (newPosts) {
-    newPosts.forEach((post) => {
-      showDetailedNotification(post);
-    });
-  }
-});
-
-/**
- * Displays a specific notification to user
- *
- * @param {object} post
- */
-const showDetailedNotification = (post) => {
-  const options = {
-    type: "basic",
-    iconUrl: "../icons/icon.png",
-    title: post.title,
-    message: `Price: ${post.price}\nLocation: ${post.location}`,
-    buttons: [{ title: "Go to site" }],
-    isClickable: true,
-  };
-
-  const notificationId = post.postId;
-  notifications[notificationId] = post.link;
+  const htmlUrl = `https://vancouver.craigslist.org/search/cta?query=${encodeURIComponent(
+    subscriptionTerm
+  )}`;
+  notifications[notificationId] = htmlUrl;
 
   chrome.notifications.create(notificationId, options);
 };
 
 chrome.notifications.onButtonClicked.addListener(
   (notificationId, buttonIndex) => {
-    const url = notifications[notificationId];
-    if (url && buttonIndex === 0) {
-      chrome.tabs.create({ url });
+    const link = notifications[notificationId];
+    if (link && buttonIndex === 0) {
+      let creating = chrome.tabs.create({ url: link });
+      creating.then(onCreated, onError);
     }
   }
 );
+
+const onCreated = (tab) => {
+  console.log(`Created new tab: ${tab.id}`);
+};
+
+const onError = (error) => {
+  console.log(`Error: ${error}`);
+};
